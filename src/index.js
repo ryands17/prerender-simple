@@ -1,26 +1,23 @@
 const puppeteer = require('puppeteer')
+const { crawler } = require('./utils/crawler')
+const { saveToFile } = require('./utils/saveToFile')
 
-async function crawler({ url }) {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
+async function fetchAllPages() {
+  const domain = 'https://mycooleebsite.com'
+  const pages = ['/', '/about']
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  })
 
-  let page = null
-  let html = false
-
-  try {
-    page = await browser.newPage()
-    // networkidle0: consider navigation to be finished when
-    // there are no more than 2 network connections for at least 500 ms.
-    // (https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagegobackoptions)
-    await page.goto(url, { waitUntil: 'networkidle0' })
-    html = await page.content()
-  } catch (e) {
-    console.warn(`Not able to fetch ${url}`)
-  } finally {
-    if (page) {
-      await page.close()
-    }
-    return html
+  for (let i = 0; i < pages.lenght; i++) {
+    const html = await crawler({
+      url: `${domain}${pages[i]}`,
+      browser,
+    })
+    saveToFile({ html, pathName: pages[i] })
   }
+  await browser.close()
+  return true
 }
 
-module.exports = crawler
+fetchAllPages()

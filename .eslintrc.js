@@ -3,5 +3,6 @@ module.exports = {
   rules: {
     'space-before-function-paren': 0,
     'no-unsafe-finally': 0,
+    'comma-dangle': 0,
   },
 }
